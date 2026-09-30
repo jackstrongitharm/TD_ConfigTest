@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+    <title>TDRoomConfigurator</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #e6e8ec; font-family: Segoe UI, Arial, sans-serif; }
+      #unity-canvas { width: 100%; height: 100%; display: block; background: #e6e8ec; }
+      #loading { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 280px; text-align: center; color: #3a3f47; }
+      #bar { height: 6px; margin-top: 10px; background: #cfd3da; border-radius: 3px; overflow: hidden; }
+      #fill { height: 100%; width: 0; background: #295cb8; }
+      #banner { position: absolute; left: 0; right: 0; top: 0; }
+      #banner div { padding: 8px 12px; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="loading">Loading the Room Configurator…<div id="bar"><div id="fill"></div></div></div>
+    <div id="banner"></div>
+    <script>
+      // Temporary messages from the player; errors stay on screen.
+      function showBanner(msg, type) {
+        var div = document.createElement("div");
+        div.textContent = msg;
+        div.style.background = type == "error" ? "#f3c3bd" : "#f5e3a8";
+        document.querySelector("#banner").appendChild(div);
+        if (type != "error") setTimeout(function () { div.remove(); }, 5000);
+      }
+      var buildUrl = "Build";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/TDRoomConfiguratorWeb.data.unityweb",
+        frameworkUrl: buildUrl + "/TDRoomConfiguratorWeb.framework.js.unityweb",
+        codeUrl: buildUrl + "/TDRoomConfiguratorWeb.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Unity",
+        productName: "TDRoomConfigurator",
+        productVersion: "0.3.0",
+        showBanner: showBanner,
+      };
+      var script = document.createElement("script");
+      script.src = buildUrl + "/TDRoomConfiguratorWeb.loader.js";
+      script.onload = function () {
+        createUnityInstance(document.querySelector("#unity-canvas"), config, function (p) {
+          document.querySelector("#fill").style.width = (100 * p) + "%";
+        }).then(function (instance) {
+          window.unityInstance = instance;
+          document.querySelector("#loading").remove();
+        }).catch(function (message) { showBanner(message, "error"); });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
